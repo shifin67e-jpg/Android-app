@@ -19,20 +19,38 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Generate Gradle Setup
+      - name: Generate Gradle Setup and Missing Resources
         run: |
           mkdir -p app/src/main/java/com/example/app
+          mkdir -p app/src/main/res/values
+          mkdir -p app/src/main/res/xml
+          mkdir -p app/src/main/res/mipmap-mdpi
           
+          # Move Kotlin files
           find . -maxdepth 2 -name "*.kt" -exec mv {} app/src/main/java/com/example/app/ \; 2>/dev/null || true
           
+          # Move AndroidManifest into proper directory
           if [ -f "AndroidManifest.xml" ]; then
             mv AndroidManifest.xml app/src/main/
           elif [ -f "app/AndroidManifest.xml" ]; then
             mv app/AndroidManifest.xml app/src/main/
-          else
-            echo '<manifest xmlns:android="http://schemas.android.com/apk/res/android"><application android:allowBackup="true" android:label="Minebot AFK Manager" android:supportsRtl="true"><activity android:name=".MainActivity" android:exported="true"><intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter></activity></application></manifest>' > app/src/main/AndroidManifest.xml
           fi
 
+          # Create dummy strings.xml
+          echo '<resources><string name="app_name">Minebot AFK Manager</string></resources>' > app/src/main/res/values/strings.xml
+
+          # Create dummy styles.xml for Theme.MyApplication
+          echo '<resources><style name="Theme.MyApplication" parent="android:Theme.Material.Light.NoActionBar"/></resources>' > app/src/main/res/values/styles.xml
+
+          # Create dummy xml backup rules
+          echo '<data-extraction-rules><cloud-backup><include domain="sharedpref" path="."/></cloud-backup></data-extraction-rules>' > app/src/main/res/xml/data_extraction_rules.xml
+          echo '<full-backup-content/>' > app/src/main/res/xml/backup_rules.xml
+
+          # Create dummy 1x1 transparent PNG for missing ic_launcher icons
+          echo "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" | base64 -d > app/src/main/res/mipmap-mdpi/ic_launcher.png
+          cp app/src/main/res/mipmap-mdpi/ic_launcher.png app/src/main/res/mipmap-mdpi/ic_launcher_round.png
+
+          # Configuration properties
           echo "android.useAndroidX=true" > gradle.properties
           echo "include ':app'" > settings.gradle
 
