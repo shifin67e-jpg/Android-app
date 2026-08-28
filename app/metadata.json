@@ -1,0 +1,6 @@
+{
+  "name": "Minecraft AFK Bot",
+  "description": "Modern Minecraft AFK Bot with real-time in-game chat monitor, Anti-AFK automation engine, session presets, and background service persistence.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
