@@ -19,84 +19,25 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Generate Gradle Setup and Build APK
+      - name: Generate Gradle Setup
         run: |
-          # 1. Create full Android directory structure
           mkdir -p app/src/main/java/com/example/app
           
-          # 2. Move Kotlin files into package folder
           find . -maxdepth 2 -name "*.kt" -exec mv {} app/src/main/java/com/example/app/ \; 2>/dev/null || true
           
-          # 3. Move AndroidManifest if it exists
           if [ -f "AndroidManifest.xml" ]; then
             mv AndroidManifest.xml app/src/main/
           elif [ -f "app/AndroidManifest.xml" ]; then
             mv app/AndroidManifest.xml app/src/main/
           else
-            cat << 'EOF' > app/src/main/AndroidManifest.xml
-            <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-                <application
-                    android:allowBackup="true"
-                    android:label="Minebot AFK Manager"
-                    android:supportsRtl="true"
-                    android:theme="@android:style/Theme.Material.Light.NoActionBar">
-                    <activity
-                        android:name=".MainActivity"
-                        android:exported="true">
-                        <intent-filter>
-                            <action android:name="android.intent.action.MAIN" />
-                            <category android:name="android.intent.category.LAUNCHER" />
-                        </intent-filter>
-                    </activity>
-                </application>
-            </manifest>
-            EOF
+            echo '<manifest xmlns:android="http://schemas.android.com/apk/res/android"><application android:allowBackup="true" android:label="Minebot AFK Manager" android:supportsRtl="true"><activity android:name=".MainActivity" android:exported="true"><intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter></activity></application></manifest>' > app/src/main/AndroidManifest.xml
           fi
 
-          # 4. Generate settings.gradle
           echo "include ':app'" > settings.gradle
 
-          # 5. Generate root build.gradle
-          cat << 'EOF' > build.gradle
-          buildscript {
-              repositories { google(); mavenCentral() }
-              dependencies {
-                  classpath "com.android.tools.build:gradle:8.2.2"
-                  classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.22"
-              }
-          }
-          allprojects {
-              repositories { google(); mavenCentral() }
-          }
-          EOF
+          echo "buildscript { repositories { google(); mavenCentral() }; dependencies { classpath 'com.android.tools.build:gradle:8.2.2'; classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.22' } }; allprojects { repositories { google(); mavenCentral() } }" > build.gradle
 
-          # 6. Generate app/build.gradle
-          cat << 'EOF' > app/build.gradle
-          plugins {
-              id 'com.android.application'
-              id 'org.jetbrains.kotlin.android'
-          }
-          android {
-              namespace 'com.example.app'
-              compileSdk 34
-              defaultConfig {
-                  applicationId "com.example.app"
-                  minSdk 24
-                  targetSdk 34
-                  versionCode 1
-                  versionName "1.0"
-              }
-              buildFeatures { compose true }
-              composeOptions { kotlinCompilerExtensionVersion '1.5.8' }
-          }
-          dependencies {
-              implementation 'androidx.core:core-ktx:1.12.0'
-              implementation 'androidx.activity:activity-compose:1.8.2'
-              implementation platform('androidx.compose:compose-bom:2024.02.01')
-              implementation 'androidx.compose.ui:ui'
-              implementation 'androidx.compose.material3:material3'
-          }
-          EOF
+          echo "plugins { id 'com.android.application'; id 'org.jetbrains.kotlin.android' }; android { namespace 'com.example.app'; compileSdk 34; defaultConfig { applicationId 'com.example.app'; minSdk 24; targetSdk 34; versionCode 1; versionName '1.0' }; buildFeatures { compose true }; composeOptions { kotlinCompilerExtensionVersion '1.5.8' } }; dependencies { implementation 'androidx.core:core-ktx:1.12.0'; implementation 'androidx.activity:activity-compose:1.8.2'; implementation platform('androidx.compose:compose-bom:2024.02.01'); implementation 'androidx.compose.ui:ui'; implementation 'androidx.compose.material3:material3' }" > app/build.gradle
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
