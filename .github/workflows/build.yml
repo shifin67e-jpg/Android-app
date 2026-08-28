@@ -33,9 +33,7 @@ jobs:
             echo '<manifest xmlns:android="http://schemas.android.com/apk/res/android"><application android:allowBackup="true" android:label="Minebot AFK Manager" android:supportsRtl="true"><activity android:name=".MainActivity" android:exported="true"><intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter></activity></application></manifest>' > app/src/main/AndroidManifest.xml
           fi
 
-          # Enable AndroidX
           echo "android.useAndroidX=true" > gradle.properties
-
           echo "include ':app'" > settings.gradle
 
           echo "buildscript { repositories { google(); mavenCentral() }; dependencies { classpath 'com.android.tools.build:gradle:8.2.2'; classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.22' } }; allprojects { repositories { google(); mavenCentral() } }" > build.gradle
@@ -47,8 +45,9 @@ jobs:
 
       - name: Build APK
         run: |
-          gradle wrapper
-          ./gradlew assembleDebug --no-configuration-cache
+          gradle wrapper --gradle-version 8.2 --distribution-type bin
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
