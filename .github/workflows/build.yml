@@ -24,9 +24,6 @@ jobs:
 
       - name: Build Debug APK
         run: |
-          if [ -d "app" ]; then
-            cd app
-          fi
           gradle wrapper
           ./gradlew assembleDebug --no-configuration-cache
 
